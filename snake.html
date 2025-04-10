@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake Game - Magmaore.in</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(to right, #4c1d95, #7b3fe4);
+      padding: 1rem;
+      width: 100%;
+      text-align: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    header h1 span {
+      color: #fbbf24;
+    }
+
+    .game-container {
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      max-width: 320px;
+      margin: 0 auto 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .score, .timer {
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    canvas {
+      border: 4px solid #6d28d9;
+      border-radius: 0.5rem;
+      background: #fff;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-areas:
+        ". up ."
+        "left down right";
+      gap: 1rem;
+      max-width: 320px;
+      margin: 1rem auto;
+    }
+
+    .control-btn {
+      background: #6d28d9;
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .control-btn:hover {
+      background: #5b21b6;
+    }
+
+    .control-btn:active {
+      background: #4c1d95;
+    }
+
+    #up { grid-area: up; }
+    #left { grid-area: left; }
+    #right { grid-area: right; }
+    #down { grid-area: down; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 300px;
+      width: 90%;
+    }
+
+    .modal-content h2 {
+      font-size: 1.5rem;
+      color: #4c1d95;
+      margin-bottom: 1rem;
+    }
+
+    .modal-content p {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-content button {
+      background: #6d28d9;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .modal-content button:hover {
+      background: #5b21b6;
+    }
+
+    @media (max-width: 400px) {
+      canvas {
+        width: 280px;
+        height: 280px;
+      }
+
+      .controls {
+        gap: 0.5rem;
+      }
+
+      .control-btn {
+        padding: 0.75rem;
+        font-size: 1rem;
+      }
+
+      .game-info {
+        font-size: 0.875rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Magmaore<span>.in</span> - Snake Game</h1>
+  </header>
+
+  <div class="game-container">
+    <div class="game-info">
+      <div class="score">Score: <span id="score">0</span></div>
+      <div class="timer">Time: <span id="timer">60</span>s</div>
+    </div>
+    <canvas id="gameCanvas" width="320" height="320"></canvas>
+    <div class="controls">
+      <button id="up" class="control-btn"><i class="fas fa-arrow-up"></i></button>
+      <button id="left" class="control-btn"><i class="fas fa-arrow-left"></i></button>
+      <button id="down" class="control-btn"><i class="fas fa-arrow-down"></i></button>
+      <button id="right" class="control-btn"><i class="fas fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <div id="gameOverModal" class="modal">
+    <div class="modal-content">
+      <h2>Magmaore Says</h2>
+      <p>Game Over! Your Score: <span id="finalScore">0</span></p>
+      <button onclick="restartGame()">Play Again</button>
+    </div>
+  </div>
+<script>
+  let targetScore;
+  while (true) {
+    targetScore = prompt("अपना लक्ष्य स्कोर दर्ज करें (10 से 50 के बीच):", "10");
+    targetScore = parseInt(targetScore);
+    if (targetScore >= 10 && targetScore <= 50) break;
+    alert("कृपया 10 से 50 के बीच का स्कोर दर्ज करें!");
+  }
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  const gridSize = 20;
+  const tileCount = canvas.width / gridSize;
+
+  let snake = [{ x: 10, y: 10 }];
+  let food = { x: 15, y: 15 };
+  let dx = 1;
+  let dy = 0;
+  let score = 0;
+  let timeLeft = 60;
+  let gameOver = false;
+
+  const scoreDisplay = document.getElementById("score");
+  const timerDisplay = document.getElementById("timer");
+
+  function drawGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#10b981";
+    snake.forEach(segment => {
+      ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+    });
+
+    ctx.fillStyle = "red";
+    ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+  }
+
+  function moveSnake() {
+    if (gameOver) return;
+
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+      gameOver = true;
+      alert("Game Over!");
+      return;
+    }
+
+    for (let i = 1; i < snake.length; i++) {
+      if (head.x === snake[i].x && head.y === snake[i].y) {
+        gameOver = true;
+        alert("Game Over!");
+        return;
+      }
+    }
+
+    snake.unshift(head);
+
+    if (head.x === food.x && head.y === food.y) {
+      score += 1;
+      scoreDisplay.textContent = score;
+      generateFood();
+
+      if (score >= targetScore) {
+        showSuccessPopup();
+        return;
+      }
+    } else {
+      snake.pop();
+    }
+  }
+
+  function generateFood() {
+    food = {
+      x: Math.floor(Math.random() * tileCount),
+      y: Math.floor(Math.random() * tileCount)
+    };
+
+    snake.forEach(segment => {
+      if (segment.x === food.x && segment.y === food.y) {
+        generateFood();
+      }
+    });
+  }
+
+  function showSuccessPopup() {
+    gameOver = true;
+
+    const popup = document.createElement("div");
+    popup.style.position = "fixed";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%)";
+    popup.style.background = "#10b981";
+    popup.style.color = "white";
+    popup.style.padding = "30px";
+    popup.style.borderRadius = "20px";
+    popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
+    popup.style.textAlign = "center";
+    popup.innerHTML = `
+      <h2>बधाई हो!</h2>
+      <p>आपका स्कोर: <strong>${score}</strong></p>
+      <button id="goBtn" style="margin-top: 15px; padding: 10px 20px; border: none; border-radius: 10px; background: white; color: #10b981; font-weight: bold; cursor: pointer;">Go</button>
+    `;
+    document.body.appendChild(popup);
+
+    document.getElementById("goBtn").addEventListener("click", () => {
+      window.location.href = `snakeform.html?score=${score}&game=Snake`;
+    });
+  }
+
+  function gameLoop() {
+    if (gameOver) return;
+    moveSnake();
+    drawGame();
+    setTimeout(gameLoop, 200);
+  }
+
+  document.getElementById("up").addEventListener("click", () => {
+    if (dy === 0) { dx = 0; dy = -1; }
+  });
+  document.getElementById("down").addEventListener("click", () => {
+    if (dy === 0) { dx = 0; dy = 1; }
+  });
+  document.getElementById("left").addEventListener("click", () => {
+    if (dx === 0) { dx = -1; dy = 0; }
+  });
+  document.getElementById("right").addEventListener("click", () => {
+    if (dx === 0) { dx = 1; dy = 0; }
+  });
+
+  drawGame();
+  gameLoop();
+</script>
+</body>
+</html>

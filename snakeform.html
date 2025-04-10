@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Snake Score Form</title>
+  <style>
+    body {
+      background-color: #10b981;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-container {
+      background: white;
+      color: #10b981;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 400px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #10b981;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #10b981;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Snake Game Result</h2>
+    <form id="scoreForm">
+      <input type="text" id="name" placeholder="Enter your Name" required>
+      <input type="email" id="email" placeholder="Enter your Email" required>
+      <input type="text" id="game" value="Snake" readonly>
+      <input type="number" id="score" readonly>
+      <input type="text" id="captchaInput" placeholder="Enter Captcha" required>
+      <div id="captchaCode" style="text-align:center; font-weight:bold;"></div>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="message" style="text-align:center; margin-top:10px;"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyChLM7NpNZdBYkDhxVcOCApqrHdDzX_YXk",
+      authDomain: "magmaore-e8af3.firebaseapp.com",
+      databaseURL: "https://magmaore-e8af3-default-rtdb.firebaseio.com",
+      projectId: "magmaore-e8af3",
+      storageBucket: "magmaore-e8af3.appspot.com",
+      messagingSenderId: "149709572837",
+      appId: "1:149709572837:web:376ea5619df749f8b6220c",
+      measurementId: "G-NX1PSBC68Q"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Get score from URL
+    const params = new URLSearchParams(window.location.search);
+    const score = params.get("score") || 0;
+    document.getElementById("score").value = score;
+
+    // Generate simple captcha
+    const captchaCode = Math.floor(Math.random() * 90 + 10) + String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    document.getElementById("captchaCode").innerText = "Captcha: " + captchaCode;
+
+    document.getElementById("scoreForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const game = document.getElementById("game").value.trim();
+      const inputScore = document.getElementById("score").value.trim();
+      const captchaInput = document.getElementById("captchaInput").value.trim();
+
+      if (captchaInput !== captchaCode) {
+        document.getElementById("message").innerText = "Captcha incorrect. Please try again.";
+        return;
+      }
+
+      // Save to Firebase
+      const userData = {
+        name,
+        email,
+        game,
+        score: parseInt(inputScore),
+        time: new Date().toLocaleString()
+      };
+
+      const newRef = db.ref("snake-scores").push();
+      newRef.set(userData)
+        .then(() => {
+          document.getElementById("message").style.color = "green";
+          document.getElementById("message").innerText = "Data submitted successfully!";
+          document.getElementById("scoreForm").reset();
+        })
+        .catch((error) => {
+          document.getElementById("message").style.color = "red";
+          document.getElementById("message").innerText = "Error: " + error.message;
+        });
+    });
+  </script>
+</body>
+</html>

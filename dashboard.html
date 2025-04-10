@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Magmaore Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(to right, #4c1d95, #7b3fe4);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      color: white;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4c1d95;
+      font-size: 1.25rem;
+    }
+
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .logo h1 span {
+      color: #fbbf24;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notification-btn {
+      position: relative;
+      padding: 0.5rem;
+      border-radius: 50%;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .notification-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-dot {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 12px;
+      height: 12px;
+      background: #ef4444;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    .user-menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #6d28d9;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .user-menu-btn:hover {
+      background: #5b21b6;
+    }
+
+    .user-initial {
+      width: 32px;
+      height: 32px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4c1d95;
+      font-weight: 700;
+    }
+
+    .user-menu {
+      position: absolute;
+      top: 60px;
+      right: 2rem;
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 200px;
+      padding: 0.5rem 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .user-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .user-menu div, .user-menu a, .user-menu button {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: #374151;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    .user-menu div {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .user-menu a:hover, .user-menu button:hover {
+      background: #f3f4f6;
+    }
+
+    .user-menu button {
+      width: 100%;
+      text-align: left;
+      color: #dc2626;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    /* Main Content */
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .welcome-banner {
+      background: linear-gradient(to right, #6d28d9, #4c1d95);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      max-width: 600px; /* Reduced size */
+    }
+
+    .welcome-banner h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-banner p {
+      opacity: 0.9;
+      font-size: 0.875rem;
+    }
+
+    .progress-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .progress-ring {
+      width: 48px;
+      height: 48px;
+      position: relative;
+    }
+
+    .progress-ring svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .progress-ring circle {
+      fill: none;
+      stroke-width: 2;
+      transition: stroke-dashoffset 0.5s ease;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .complete-btn {
+      background: white;
+      color: #4c1d95;
+      padding: 0.25rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .complete-btn:hover {
+      background: #e5e7eb;
+    }
+
+    /* Tools Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .tool-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, #7c3aed, #10b981);
+    }
+
+    .tool-icon {
+      width: 48px;
+      height: 48px;
+      background: #e0e7ff;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4c1d95;
+      font-size: 1.25rem;
+      margin-right: 1rem;
+    }
+
+    .tool-card h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .tool-card p {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .tool-button {
+      display: inline-block;
+      background: #6d28d9;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      font-size: 0.875rem;
+      margin-top: 0.75rem;
+      transition: background 0.3s;
+    }
+
+    .tool-button:hover {
+      background: #5b21b6;
+    }
+
+    /* Footer */
+    footer {
+      background: linear-gradient(to right, #2e1065, #6d28d9);
+      color: white;
+      padding: 2rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    footer h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    footer ul {
+      list-style: none;
+    }
+
+    footer ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    footer a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    footer a:hover {
+      color: #fbbf24;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-fire"></i></div>
+      <h1>Magmaore<span>.in</span></h1>
+    </div>
+    <div class="header-actions">
+      <button class="notification-btn">
+        <i class="fas fa-bell"></i>
+        <span class="notification-dot"></span>
+      </button>
+      <div style="position: relative;">
+        <button class="user-menu-btn">
+          <div class="user-initial" id="userInitial">U</div>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="user-menu" id="userMenu">
+          <div>
+            <p id="userEmail"></p>
+          </div>
+          <a href="#"><i class="fas fa-user"></i> Profile</a>
+          <a href="#"><i class="fas fa-cog"></i> Settings</a>
+          <a href="#"><i class="fas fa-shield-alt"></i> Security</a>
+          <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+      <h2>Welcome back, <span id="userName">User</span>!</h2>
+      <p>You have <strong>3 new updates</strong> in your dashboard</p>
+      <div class="progress-container">
+        <div class="progress-ring">
+          <svg viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="16" stroke="#e0e7ff" stroke-width="2"></circle>
+            <circle cx="18" cy="18" r="16" stroke="white" stroke-width="2" stroke-dasharray="100" stroke-dashoffset="30" class="progress-ring"></circle>
+          </svg>
+          <span class="progress-text">70%</span>
+        </div>
+        <div>
+          <p style="font-size: 0.875rem; opacity: 0.8;">Profile Completion</p>
+          <button class="complete-btn">Complete Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tools Grid -->
+    <div class="tools-grid">
+      <a href="#" class="tool-card">
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+          <div class="tool-icon"><i class="fas fa-gamepad"></i></div>
+          <h3>Snake Game</h3>
+        </div>
+        <p>Classic snake game with modern twists and leaderboards</p>
+        <a href="snake.html" class="tool-button">Play Now</a>
+      </a>
+      <a href="invisibleink.html" class="tool-card">
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+          <div class="tool-icon"><i class="fas fa-link"></i></div>
+          <h3>Invisible Link Generator</h3>
+        </div>
+        <p>Create stealthy links with custom tracking and analytics</p>
+        <a href="invisibleink.html" class="tool-button">Generate Now</a>
+      </a>
+      <a href="passgen.html" class="tool-card">
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+          <div class="tool-icon"><i class="fas fa-lock"></i></div>
+          <h3>Password Generator</h3>
+        </div>
+        <p>Generate secure passwords with custom rules</p>
+        <a href="passgen.html" class="tool-button">Generate Now</a>
+      </a>
+      <a href="playquizz.html" class="tool-card">
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+          <div class="tool-icon"><i class="fas fa-trophy"></i></div>
+          <h3>Play Quiz | Win 🤑</h3>
+        </div>
+        <p>Participate in daily quizzes and win rewards</p>
+        <a href="playquizz.html" class="tool-button">Start Quiz</a>
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div>
+        <h3><i class="fas fa-fire"></i> Magmaore.in</h3>
+        <p style="font-size: 0.875rem; opacity: 0.8;">Powerful tools for creators, developers, and digital enthusiasts.</p>
+      </div>
+      <div>
+        <h3>Tools</h3>
+        <ul>
+          <li><a href="#">Password Generator</a></li>
+          <li><a href="#">Invisible Links</a></li>
+          <li><a href="#">Snake Game</a></li>
+          <li><a href="#">Play Quiz | Win 🤑</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Connect</h3>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fab fa-telegram"></i></a>
+        </div>
+        <p style="font-size: 0.875rem; opacity: 0.8; margin-top: 1rem;">support@magmaore.in</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p style="font-size: 0.875rem; opacity: 0.8;">© 2025 Magmaore.in. All rights reserved.</p>
+      <div style="display: flex; gap: 1.5rem;">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChLM7NpNZdBYkDhxVcOCApqrHdDzX_YXk",
+      authDomain: "magmaore-e8af3.firebaseapp.com",
+      projectId: "magmaore-e8af3",
+      storageBucket: "magmaore-e8af3.appspot.com",
+      messagingSenderId: "149709572837",
+      appId: "1:149709572837:web:376ea5619df749f8b6220c",
+      measurementId: "G-NX1PSBC68Q"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("userEmail").innerText = user.email;
+        document.getElementById("userName").innerText = user.displayName || user.email.split('@')[0];
+        document.getElementById("userInitial").innerText = user.email.charAt(0).toUpperCase();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    window.logout = () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    };
+
+    // User menu toggle
+    const userMenuBtn = document.querySelector(".user-menu-btn");
+    const userMenu = document.getElementById("userMenu");
+    userMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      userMenu.classList.toggle("active");
+    });
+
+    document.addEventListener("click", () => {
+      userMenu.classList.remove("active");
+    });
+
+    // Notification button
+    const notificationBtn = document.querySelector(".notification-btn");
+    notificationBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      alert("You have 3 new notifications");
+      document.querySelector(".notification-dot").style.display = "none";
+    });
+
+    // Progress ring animation
+    setTimeout(() => {
+      document.querySelector(".progress-ring circle:nth-child(2)").style.strokeDashoffset = "30";
+    }, 500);
+  </script>
+</body>
+</html>
